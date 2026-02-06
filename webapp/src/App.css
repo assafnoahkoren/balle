@@ -153,26 +153,69 @@ h1 {
   margin: 1rem 0;
 }
 
-.dispense-btn {
+.cmd-section {
   margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.cmd-btn {
   width: 100%;
-  padding: 0.6rem;
+  padding: 0.5rem;
   border: 1px solid #333;
   border-radius: 8px;
   background: #252525;
   color: #e0e0e0;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   font-weight: 500;
   cursor: pointer;
   transition: background 0.15s, border-color 0.15s;
 }
 
-.dispense-btn:hover:not(:disabled) {
+.cmd-btn:hover:not(:disabled) {
   background: #303030;
   border-color: #4ade80;
 }
 
-.dispense-btn:disabled {
+.cmd-btn:disabled {
   opacity: 0.4;
   cursor: not-allowed;
+}
+
+.cmd-dispense {
+  font-size: 0.9rem;
+  padding: 0.6rem;
+}
+
+.cmd-input-row {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.cmd-input-row .cmd-btn {
+  flex-shrink: 0;
+  width: auto;
+  padding: 0.5rem 0.75rem;
+}
+
+.cmd-input {
+  flex: 1;
+  min-width: 0;
+  padding: 0.5rem 0.6rem;
+  border: 1px solid #333;
+  border-radius: 8px;
+  background: #1a1a1a;
+  color: #e0e0e0;
+  font-size: 0.85rem;
+  font-family: monospace;
+}
+
+.cmd-input::placeholder {
+  color: #555;
+}
+
+.cmd-input:focus {
+  outline: none;
+  border-color: #4ade8066;
 }

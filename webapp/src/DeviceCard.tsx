@@ -2,19 +2,21 @@ import { useState } from "react";
 import type { DeviceStatus } from "./types";
 
 export function DeviceCard({ device }: { device: DeviceStatus }) {
-  const [dispensing, setDispensing] = useState(false);
+  const [busy, setBusy] = useState<string | null>(null);
+  const [ballCountInput, setBallCountInput] = useState("");
+  const [configInput, setConfigInput] = useState("");
   const s = device.status;
 
-  async function handleDispense() {
-    setDispensing(true);
+  async function sendCommand(action: string, params: Record<string, unknown> = {}) {
+    setBusy(action);
     try {
-      await fetch(`/api/devices/${device.device_id}/dispense`, {
+      await fetch(`/api/devices/${device.device_id}/command`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ count: 1 }),
+        body: JSON.stringify({ action, params }),
       });
     } finally {
-      setDispensing(false);
+      setBusy(null);
     }
   }
 
@@ -84,13 +86,69 @@ export function DeviceCard({ device }: { device: DeviceStatus }) {
             </div>
           </div>
 
-          <button
-            className="dispense-btn"
-            onClick={handleDispense}
-            disabled={dispensing || !device.online}
-          >
-            {dispensing ? "Dispensing..." : "Dispense Ball"}
-          </button>
+          <div className="cmd-section">
+            <button
+              className="cmd-btn cmd-dispense"
+              onClick={() => sendCommand("dispense", { count: 1 })}
+              disabled={busy !== null || !device.online}
+            >
+              {busy === "dispense" ? "Dispensing..." : "Dispense Ball"}
+            </button>
+
+            <button
+              className="cmd-btn"
+              onClick={() => sendCommand("ping")}
+              disabled={busy !== null || !device.online}
+            >
+              {busy === "ping" ? "Pinging..." : "Ping"}
+            </button>
+
+            <div className="cmd-input-row">
+              <input
+                type="number"
+                className="cmd-input"
+                placeholder="Ball count"
+                value={ballCountInput}
+                onChange={(e) => setBallCountInput(e.target.value)}
+              />
+              <button
+                className="cmd-btn"
+                onClick={() => {
+                  const count = parseInt(ballCountInput);
+                  if (!isNaN(count)) {
+                    sendCommand("set_ball_count", { count });
+                    setBallCountInput("");
+                  }
+                }}
+                disabled={busy !== null || !device.online || !ballCountInput}
+              >
+                {busy === "set_ball_count" ? "Setting..." : "Set Balls"}
+              </button>
+            </div>
+
+            <div className="cmd-input-row">
+              <input
+                type="number"
+                className="cmd-input"
+                placeholder="Status interval (ms)"
+                value={configInput}
+                onChange={(e) => setConfigInput(e.target.value)}
+              />
+              <button
+                className="cmd-btn"
+                onClick={() => {
+                  const ms = parseInt(configInput);
+                  if (!isNaN(ms)) {
+                    sendCommand("set_config", { status_interval_ms: ms });
+                    setConfigInput("");
+                  }
+                }}
+                disabled={busy !== null || !device.online || !configInput}
+              >
+                {busy === "set_config" ? "Setting..." : "Set Config"}
+              </button>
+            </div>
+          </div>
         </>
       ) : (
         <div className="card-body">
