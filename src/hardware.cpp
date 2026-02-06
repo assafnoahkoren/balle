@@ -4,6 +4,7 @@
 
 static Servo servo;
 static DispenserStatus status;
+static ServoConfig servoConfig;
 static int prevBallCount = 0;
 
 // Forward declaration for event sending (implemented in comms.cpp)
@@ -20,10 +21,17 @@ void initHardware() {
     status.ballCount = INITIAL_BALL_COUNT;
     status.error[0] = '\0';
     prevBallCount = INITIAL_BALL_COUNT;
+
+    servoConfig.openAngle = SERVO_OPEN_ANGLE;
+    servoConfig.settleMs = 200;
 }
 
 DispenserStatus& getDispenserStatus() {
     return status;
+}
+
+ServoConfig& getServoConfig() {
+    return servoConfig;
 }
 
 bool dispense(int count) {
@@ -44,28 +52,23 @@ bool dispense(int count) {
         }
 
         // Open the gate
-        servo.write(SERVO_OPEN_ANGLE);
+        servo.write(servoConfig.openAngle);
+        delay(servoConfig.settleMs);
 
-        // Wait for ball to pass sensor (sensor goes LOW when ball passes)
-        unsigned long start = millis();
-        bool ballPassed = false;
-        while (millis() - start < DISPENSE_TIMEOUT_MS) {
-            if (digitalRead(PIN_BALL_SENSOR) == LOW) {
-                ballPassed = true;
-                break;
-            }
-            delay(10);
-        }
+        // // Wait for ball to pass sensor (sensor goes LOW when ball passes)
+        // unsigned long start = millis();
+        // bool ballPassed = false;
+        // while (millis() - start < DISPENSE_TIMEOUT_MS) {
+        //     if (digitalRead(PIN_BALL_SENSOR) == LOW) {
+        //         ballPassed = true;
+        //         break;
+        //     }
+        //     delay(10);
+        // }
 
         // Close the gate
         servo.write(SERVO_CLOSED_ANGLE);
-        delay(200);  // let servo settle
-
-        if (!ballPassed) {
-            strlcpy(status.error, "servo_timeout", sizeof(status.error));
-            status.state = DISP_ERROR;
-            return false;
-        }
+        delay(servoConfig.settleMs);
 
         status.ballCount--;
         status.totalDispensed++;

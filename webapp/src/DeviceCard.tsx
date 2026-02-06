@@ -4,7 +4,8 @@ import type { DeviceStatus } from "./types";
 export function DeviceCard({ device }: { device: DeviceStatus }) {
   const [busy, setBusy] = useState<string | null>(null);
   const [ballCountInput, setBallCountInput] = useState("");
-  const [configInput, setConfigInput] = useState("");
+  const [angleInput, setAngleInput] = useState("");
+  const [settleInput, setSettleInput] = useState("");
   const s = device.status;
 
   async function sendCommand(action: string, params: Record<string, unknown> = {}) {
@@ -61,6 +62,15 @@ export function DeviceCard({ device }: { device: DeviceStatus }) {
                 </span>
               </div>
             )}
+            <hr />
+            <div className="stat-row">
+              <span className="stat-label">Servo Angle</span>
+              <span className="stat-value">{s.servo_open_angle}°</span>
+            </div>
+            <div className="stat-row">
+              <span className="stat-label">Settle Delay</span>
+              <span className="stat-value">{s.servo_settle_ms} ms</span>
+            </div>
             <hr />
             <div className="stat-row">
               <span className="stat-label">IP</span>
@@ -130,22 +140,45 @@ export function DeviceCard({ device }: { device: DeviceStatus }) {
               <input
                 type="number"
                 className="cmd-input"
-                placeholder="Status interval (ms)"
-                value={configInput}
-                onChange={(e) => setConfigInput(e.target.value)}
+                placeholder={`Angle (${s.servo_open_angle}°)`}
+                value={angleInput}
+                onChange={(e) => setAngleInput(e.target.value)}
               />
               <button
                 className="cmd-btn"
                 onClick={() => {
-                  const ms = parseInt(configInput);
-                  if (!isNaN(ms)) {
-                    sendCommand("set_config", { status_interval_ms: ms });
-                    setConfigInput("");
+                  const val = parseInt(angleInput);
+                  if (!isNaN(val)) {
+                    sendCommand("set_config", { servo_open_angle: val });
+                    setAngleInput("");
                   }
                 }}
-                disabled={busy !== null || !device.online || !configInput}
+                disabled={busy !== null || !device.online || !angleInput}
               >
-                {busy === "set_config" ? "Setting..." : "Set Config"}
+                {busy === "set_config" ? "Setting..." : "Set Angle"}
+              </button>
+            </div>
+
+            <div className="cmd-input-row">
+              <input
+                type="number"
+                className="cmd-input"
+                placeholder={`Settle (${s.servo_settle_ms} ms)`}
+                value={settleInput}
+                onChange={(e) => setSettleInput(e.target.value)}
+              />
+              <button
+                className="cmd-btn"
+                onClick={() => {
+                  const val = parseInt(settleInput);
+                  if (!isNaN(val)) {
+                    sendCommand("set_config", { servo_settle_ms: val });
+                    setSettleInput("");
+                  }
+                }}
+                disabled={busy !== null || !device.online || !settleInput}
+              >
+                {busy === "set_config" ? "Setting..." : "Set Settle"}
               </button>
             </div>
           </div>

@@ -12,7 +12,7 @@ const int PIN_BALL_SENSOR = 14;  // IR break-beam digital input
 
 // ---- Servo angles ----
 const int SERVO_CLOSED_ANGLE = 0;
-const int SERVO_OPEN_ANGLE   = 90;
+const int SERVO_OPEN_ANGLE   = 60;
 
 // ---- Timing (ms) ----
 const unsigned long STATUS_INTERVAL_MS    = 2000;

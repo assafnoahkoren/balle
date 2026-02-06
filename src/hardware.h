@@ -12,7 +12,13 @@ struct DispenserStatus {
     char error[32];
 };
 
+struct ServoConfig {
+    int openAngle;
+    int settleMs;
+};
+
 void initHardware();
 DispenserStatus& getDispenserStatus();
+ServoConfig& getServoConfig();
 bool dispense(int count);
 void checkSensor();

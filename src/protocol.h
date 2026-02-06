@@ -12,6 +12,7 @@ const char* const MSG_EVENT   = "event";
 const char* const MSG_CMD     = "cmd";
 
 String buildStatusJson(const DispenserStatus& ds) {
+    ServoConfig& sc = getServoConfig();
     JsonDocument doc;
     doc["type"] = MSG_STATUS;
     doc["device_id"] = DEVICE_ID;
@@ -22,6 +23,8 @@ String buildStatusJson(const DispenserStatus& ds) {
     doc["cpu_freq_mhz"] = ESP.getCpuFreqMHz();
     doc["temp_c"] = temperatureRead();
     doc["ball_count"] = ds.ballCount;
+    doc["servo_open_angle"] = sc.openAngle;
+    doc["servo_settle_ms"] = sc.settleMs;
 
     JsonObject disp = doc["dispenser"].to<JsonObject>();
     const char* stateStr = (ds.state == 0) ? "idle" : (ds.state == 1) ? "dispensing" : "error";

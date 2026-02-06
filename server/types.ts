@@ -12,6 +12,8 @@ export interface StatusMessage {
   cpu_freq_mhz: number;
   temp_c: number;
   ball_count: number;
+  servo_open_angle: number;
+  servo_settle_ms: number;
   dispenser: {
     state: "idle" | "dispensing" | "error";
     last_dispense_ts: number;

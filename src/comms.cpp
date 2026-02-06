@@ -39,7 +39,13 @@ static void onMessage(WebsocketsMessage message) {
         sendAck(cmd.cmd_id, true, "", ds.ballCount);
 
     } else if (strcmp(cmd.action, "set_config") == 0) {
-        // Future: update runtime config values
+        ServoConfig& sc = getServoConfig();
+        if (cmd.doc["params"].containsKey("servo_open_angle")) {
+            sc.openAngle = cmd.doc["params"]["servo_open_angle"] | sc.openAngle;
+        }
+        if (cmd.doc["params"].containsKey("servo_settle_ms")) {
+            sc.settleMs = cmd.doc["params"]["servo_settle_ms"] | sc.settleMs;
+        }
         DispenserStatus& ds = getDispenserStatus();
         sendAck(cmd.cmd_id, true, "", ds.ballCount);
 
