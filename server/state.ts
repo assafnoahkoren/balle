@@ -4,6 +4,19 @@ const devices = new Map<string, DeviceState>();
 const pendingCommands = new Map<string, PendingCommand>();
 
 const COMMAND_HISTORY_LIMIT = 50;
+const STALE_DEVICE_TIMEOUT_MS = 10_000;
+
+// Remove devices that haven't sent a message in 10 seconds
+setInterval(() => {
+  const now = Date.now();
+  for (const [id, device] of devices) {
+    if (now - device.last_seen > STALE_DEVICE_TIMEOUT_MS) {
+      console.log(`[state] Removing stale device: ${id}`);
+      rejectPendingCommandsForDevice(id);
+      devices.delete(id);
+    }
+  }
+}, 5_000);
 
 export function getDevice(id: string): DeviceState | undefined {
   return devices.get(id);
