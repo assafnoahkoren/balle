@@ -1,21 +1,20 @@
-const server = Bun.serve({
+import type { WsData } from "./types";
+import { handleOpen, handleMessage, handleClose } from "./ws-handler";
+import { handleRequest } from "./routes";
+
+const server = Bun.serve<WsData>({
   port: 4444,
   fetch(req, server) {
-    if (server.upgrade(req)) return;
-    return new Response("WebSocket server running");
+    if (server.upgrade(req, { data: { device_id: null } })) return;
+    return handleRequest(req);
   },
   websocket: {
-    open(ws) {
-      console.log("ESP32 connected!");
-    },
-    message(ws, message) {
-      console.log("Received:", message);
-      ws.send(`echo: ${message}`);
-    },
-    close(ws) {
-      console.log("ESP32 disconnected");
-    },
+    open: handleOpen,
+    message: handleMessage,
+    close: handleClose,
   },
 });
 
-console.log(`WebSocket server listening on ws://10.0.0.6:${server.port}`);
+console.log(`Server listening on http://0.0.0.0:${server.port}`);
+console.log(`  WebSocket: ws://0.0.0.0:${server.port}`);
+console.log(`  REST API:  http://0.0.0.0:${server.port}/api/`);
