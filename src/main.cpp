@@ -53,8 +53,22 @@ void setup() {
 void loop() {
     if (connected) {
         client.poll();
-        client.send("Message #" + String(counter));
-        Serial.println("Sent: Message #" + String(counter));
+
+        String json = "{";
+        json += "\"uptime_s\":" + String(millis() / 1000);
+        json += ",\"free_heap\":" + String(ESP.getFreeHeap());
+        json += ",\"wifi_rssi\":" + String(WiFi.RSSI());
+        json += ",\"ip\":\"" + WiFi.localIP().toString() + "\"";
+        json += ",\"cpu_freq_mhz\":" + String(ESP.getCpuFreqMHz());
+        json += ",\"flash_size\":" + String(ESP.getFlashChipSize());
+        json += ",\"sketch_used\":" + String(ESP.getSketchSize());
+        json += ",\"sketch_free\":" + String(ESP.getFreeSketchSpace());
+        json += ",\"temp_c\":" + String(temperatureRead(), 1);
+        json += ",\"msg_count\":" + String(counter);
+        json += "}";
+
+        client.send(json);
+        Serial.println("Sent: " + json);
         counter++;
     } else if (millis() - lastReconnectAttempt > 3000) {
         lastReconnectAttempt = millis();
