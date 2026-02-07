@@ -7,7 +7,7 @@ const char* const WS_URL    = "ws://10.0.0.6:4444";
 const char* const DEVICE_ID = "esp32-001";
 
 // ---- Pins ----
-const int PIN_SERVO       = 13;
+const int PIN_SERVO       = 19;
 const int PIN_BALL_SENSOR = 14;  // IR break-beam digital input
 
 // ---- Servo angles ----
