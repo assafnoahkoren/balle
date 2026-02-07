@@ -18,7 +18,7 @@ const int SERVO_OPEN_ANGLE   = 60;
 const unsigned long STATUS_INTERVAL_MS    = 2000;
 const unsigned long SENSOR_CHECK_MS       = 200;
 const unsigned long RECONNECT_INTERVAL_MS = 3000;
-const unsigned long DISPENSE_TIMEOUT_MS   = 3000;
+const unsigned long DISPENSE_TIMEOUT_MS   = 30000;
 
 // ---- Thresholds ----
 const int LOW_BALL_THRESHOLD = 3;

@@ -1,19 +1,58 @@
 #include "hardware.h"
 #include "config.h"
 #include <ESP32Servo.h>
+#include <Wire.h>
+#include <VL53L0X.h>
 
 static Servo servo;
+static VL53L0X distSensor;
 static DispenserStatus status;
 static ServoConfig servoConfig;
 static int prevBallCount = 0;
+static int lastDistance = 0;
 
 // Forward declaration for event sending (implemented in comms.cpp)
 extern void sendEvent(const char* event, int ballCount);
 
+// Read a smoothed distance (average of a few samples to reduce noise)
+static int readDistance() {
+    int sum = 0;
+    const int samples = 3;
+    for (int i = 0; i < samples; i++) {
+        int d = distSensor.readRangeContinuousMillimeters();
+        if (distSensor.timeoutOccurred()) return -1;
+        sum += d;
+        delay(5);
+    }
+    lastDistance = sum / samples;
+    return lastDistance;
+}
+
+// Take a stable baseline reading (average of more samples)
+static int readBaseline() {
+    int sum = 0;
+    const int samples = 5;
+    for (int i = 0; i < samples; i++) {
+        int d = distSensor.readRangeContinuousMillimeters();
+        if (distSensor.timeoutOccurred()) return -1;
+        sum += d;
+        delay(10);
+    }
+    return sum / samples;
+}
+
 void initHardware() {
     servo.attach(PIN_SERVO);
     servo.write(SERVO_CLOSED_ANGLE);
-    pinMode(PIN_BALL_SENSOR, INPUT_PULLUP);
+
+    Wire.begin(8, 9);
+    distSensor.setTimeout(500);
+    if (!distSensor.init()) {
+        Serial.println("[hw] VL53L0X not detected!");
+    } else {
+        distSensor.startContinuous();
+        Serial.println("[hw] VL53L0X ready");
+    }
 
     status.state = DISP_IDLE;
     status.lastDispenseTs = 0;
@@ -34,6 +73,10 @@ ServoConfig& getServoConfig() {
     return servoConfig;
 }
 
+int getLastDistance() {
+    return lastDistance;
+}
+
 bool dispense(int count) {
     if (status.ballCount <= 0) {
         strlcpy(status.error, "empty", sizeof(status.error));
@@ -51,22 +94,45 @@ bool dispense(int count) {
             return false;
         }
 
-        // Open the gate
+        // 1. Read baseline distance (ball sitting in front of sensor)
+        int baseline = readBaseline();
+        if (baseline < 0) {
+            strlcpy(status.error, "sensor_timeout", sizeof(status.error));
+            status.state = DISP_ERROR;
+            return false;
+        }
+        // Departure threshold: distance must rise by >50% above baseline
+        int departThreshold = baseline + (baseline / 2);
+
+        Serial.printf("[hw] Baseline=%dmm, depart threshold=%dmm\n", baseline, departThreshold);
+
+        // 2. Open the gate
         servo.write(servoConfig.openAngle);
-        delay(servoConfig.settleMs);
 
-        // // Wait for ball to pass sensor (sensor goes LOW when ball passes)
-        // unsigned long start = millis();
-        // bool ballPassed = false;
-        // while (millis() - start < DISPENSE_TIMEOUT_MS) {
-        //     if (digitalRead(PIN_BALL_SENSOR) == LOW) {
-        //         ballPassed = true;
-        //         break;
-        //     }
-        //     delay(10);
-        // }
+        // 3. Wait for ball to depart (distance rises well above baseline)
+        unsigned long start = millis();
+        bool departed = false;
+        while (millis() - start < DISPENSE_TIMEOUT_MS) {
+            int d = readDistance();
+            if (d > departThreshold) {
+                departed = true;
+                Serial.printf("[hw] Ball departed, dist=%dmm\n", d);
+                break;
+            }
+            delay(10);
+        }
 
-        // Close the gate
+        if (!departed) {
+            // Keep gate open — ball may be stuck, don't crush it
+            strlcpy(status.error, "no_departure", sizeof(status.error));
+            status.state = DISP_ERROR;
+            return false;
+        }
+
+        // 4. Brief delay for ball to physically clear the gate
+        delay(200);
+
+        // 5. Close the gate
         servo.write(SERVO_CLOSED_ANGLE);
         delay(servoConfig.settleMs);
 
@@ -80,6 +146,9 @@ bool dispense(int count) {
 }
 
 void checkSensor() {
+    // Keep lastDistance updated for status reports
+    readDistance();
+
     // Detect ball count changes and fire events
     if (status.ballCount != prevBallCount) {
         if (status.ballCount == 0) {

@@ -14,6 +14,7 @@ export interface DeviceStatus {
     ball_count: number;
     servo_open_angle: number;
     servo_settle_ms: number;
+    sensor_distance_mm: number;
     dispenser: {
       state: "idle" | "dispensing" | "error";
       last_dispense_ts: number;

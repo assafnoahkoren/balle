@@ -71,6 +71,10 @@ export function DeviceCard({ device }: { device: DeviceStatus }) {
               <span className="stat-label">Settle Delay</span>
               <span className="stat-value">{s.servo_settle_ms} ms</span>
             </div>
+            <div className="stat-row">
+              <span className="stat-label">Distance</span>
+              <span className="stat-value">{s.sensor_distance_mm} mm</span>
+            </div>
             <hr />
             <div className="stat-row">
               <span className="stat-label">IP</span>

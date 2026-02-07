@@ -25,6 +25,7 @@ String buildStatusJson(const DispenserStatus& ds) {
     doc["ball_count"] = ds.ballCount;
     doc["servo_open_angle"] = sc.openAngle;
     doc["servo_settle_ms"] = sc.settleMs;
+    doc["sensor_distance_mm"] = getLastDistance();
 
     JsonObject disp = doc["dispenser"].to<JsonObject>();
     const char* stateStr = (ds.state == 0) ? "idle" : (ds.state == 1) ? "dispensing" : "error";

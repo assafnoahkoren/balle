@@ -20,5 +20,6 @@ struct ServoConfig {
 void initHardware();
 DispenserStatus& getDispenserStatus();
 ServoConfig& getServoConfig();
+int getLastDistance();
 bool dispense(int count);
 void checkSensor();
