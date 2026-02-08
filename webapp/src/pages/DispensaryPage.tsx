@@ -132,19 +132,19 @@ export default function DispensaryPage() {
           {/* Header */}
           <div className="flex flex-col items-center gap-2">
             <div className="balle-logo flex items-center gap-2">
-              <CircleDot className="size-8 text-[var(--accent-orange)]" strokeWidth={2.5} />
-              <h1 className="font-display text-4xl font-extrabold tracking-tight text-[var(--text-primary)]">
+              <CircleDot className="size-10 text-[var(--accent-orange)]" strokeWidth={2.5} />
+              <h1 className="font-display text-5xl font-extrabold tracking-tight text-[var(--text-primary)]">
                 balle
               </h1>
             </div>
-            <p dir="rtl" className="text-xs tracking-[0.2em] uppercase text-[var(--text-muted)] font-medium">
+            <p dir="rtl" className="text-sm tracking-[0.2em] uppercase text-[var(--text-muted)] font-medium">
               {machineLabel ?? `מכונה ${dispensaryId || "---"}`}
             </p>
           </div>
 
           {/* ID Entry / Animation */}
           <div className="w-full flex flex-col items-center gap-3">
-            <label className="text-sm font-semibold text-[var(--text-secondary)] tracking-wide">
+            <label className="text-base font-semibold text-[var(--text-secondary)] tracking-wide">
               {isAnimating ? "מחלק..." : "הזן תעודת זהות"}
             </label>
 
@@ -162,7 +162,7 @@ export default function DispensaryPage() {
               />
             )}
 
-            <p className={`text-xs ${isIdComplete && !isIdValid ? "text-[var(--error-red)]" : "text-[var(--text-muted)]"}`}>
+            <p className={`text-sm ${isIdComplete && !isIdValid ? "text-[var(--error-red)]" : "text-[var(--text-muted)]"}`}>
               {isAnimating
                 ? "\u00A0"
                 : isIdComplete && !isIdValid
