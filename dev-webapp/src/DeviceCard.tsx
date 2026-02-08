@@ -1,6 +1,8 @@
 import { useState } from "react";
 import type { DeviceStatus } from "./types";
 
+const API_BASE = import.meta.env.VITE_API_URL || '';
+
 export function DeviceCard({ device }: { device: DeviceStatus }) {
   const [busy, setBusy] = useState<string | null>(null);
   const [ballCountInput, setBallCountInput] = useState("");
@@ -11,7 +13,7 @@ export function DeviceCard({ device }: { device: DeviceStatus }) {
   async function sendCommand(action: string, params: Record<string, unknown> = {}) {
     setBusy(action);
     try {
-      await fetch(`/api/devices/${device.device_id}/command`, {
+      await fetch(`${API_BASE}/api/devices/${device.device_id}/command`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action, params }),

@@ -3,6 +3,8 @@ import type { DeviceStatus } from "./types";
 import { DeviceCard } from "./DeviceCard";
 import "./App.css";
 
+const API_BASE = import.meta.env.VITE_API_URL || '';
+
 function App() {
   const [devices, setDevices] = useState<DeviceStatus[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -13,7 +15,7 @@ function App() {
     async function poll() {
       while (active) {
         try {
-          const res = await fetch("/api/devices");
+          const res = await fetch(`${API_BASE}/api/devices`);
           if (!res.ok) throw new Error(`HTTP ${res.status}`);
           const data: DeviceStatus[] = await res.json();
           setDevices(data);

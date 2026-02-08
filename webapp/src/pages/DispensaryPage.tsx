@@ -6,6 +6,8 @@ import { DispenseAnimation } from "@/components/DispenseAnimation";
 import { isValidIsraeliId } from "@/lib/israeliId";
 import { CircleDot, Undo2, Loader2 } from "lucide-react";
 
+const API_BASE = import.meta.env.VITE_API_URL || '';
+
 type Status = "idle" | "loading" | "success" | "error";
 type Action = "dispense" | "return";
 
@@ -23,7 +25,7 @@ export default function DispensaryPage() {
 
   useEffect(() => {
     if (!dispensaryId) return;
-    fetch(`/api/devices/${dispensaryId}`)
+    fetch(`${API_BASE}/api/devices/${dispensaryId}`)
       .then((r) => (r.ok ? r.json() : null))
       .then((d) => { if (d?.label) setMachineLabel(d.label); })
       .catch(() => {});
@@ -66,7 +68,7 @@ export default function DispensaryPage() {
       setResult({ status: "loading", action });
 
       try {
-        const response = await fetch(`/api/${action}`, {
+        const response = await fetch(`${API_BASE}/api/${action}`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({

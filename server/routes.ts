@@ -7,19 +7,36 @@ function serializeDevice(d: DeviceState) {
   return rest;
 }
 
+function corsHeaders(): HeadersInit {
+  return {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type",
+  };
+}
+
+function jsonWithCors(data: unknown, init?: ResponseInit): Response {
+  const headers = { ...corsHeaders(), ...init?.headers };
+  return jsonWithCors(data, { ...init, headers });
+}
+
 export async function handleRequest(req: Request): Promise<Response> {
   const url = new URL(req.url);
   const { pathname } = url;
   const method = req.method;
 
+  if (method === "OPTIONS") {
+    return new Response(null, { status: 204, headers: corsHeaders() });
+  }
+
   // GET /api/health
   if (method === "GET" && pathname === "/api/health") {
-    return Response.json({ status: "ok", uptime_s: process.uptime() });
+    return jsonWithCors({ status: "ok", uptime_s: process.uptime() });
   }
 
   // GET /api/devices
   if (method === "GET" && pathname === "/api/devices") {
-    return Response.json(getAllDevices().map(serializeDevice));
+    return jsonWithCors(getAllDevices().map(serializeDevice));
   }
 
   // GET /api/devices/:id
@@ -27,8 +44,8 @@ export async function handleRequest(req: Request): Promise<Response> {
   if (method === "GET" && deviceMatch) {
     const device = getDevice(deviceMatch[1]!);
     if (!device)
-      return Response.json({ error: "device_not_found" }, { status: 404 });
-    return Response.json(serializeDevice(device));
+      return jsonWithCors({ error: "device_not_found" }, { status: 404 });
+    return jsonWithCors(serializeDevice(device));
   }
 
   // POST /api/devices/:id/dispense
@@ -45,7 +62,7 @@ export async function handleRequest(req: Request): Promise<Response> {
 
     try {
       const ack = await sendCommand(deviceId, "dispense", { count });
-      return Response.json({
+      return jsonWithCors({
         success: ack.success,
         error: ack.error,
         data: ack.data,
@@ -63,7 +80,7 @@ export async function handleRequest(req: Request): Promise<Response> {
     try {
       body = await req.json();
     } catch {
-      return Response.json({ error: "invalid_body" }, { status: 400 });
+      return jsonWithCors({ error: "invalid_body" }, { status: 400 });
     }
 
     try {
@@ -72,7 +89,7 @@ export async function handleRequest(req: Request): Promise<Response> {
         body.action as any,
         body.params ?? {}
       );
-      return Response.json({
+      return jsonWithCors({
         success: ack.success,
         error: ack.error,
         data: ack.data,
@@ -90,12 +107,12 @@ export async function handleRequest(req: Request): Promise<Response> {
     try {
       body = (await req.json()) as typeof body;
     } catch {
-      return Response.json({ error: "invalid_body" }, { status: 400 });
+      return jsonWithCors({ error: "invalid_body" }, { status: 400 });
     }
 
     const { dispensaryId, userId } = body;
     if (!dispensaryId || !userId || !/^\d{9}$/.test(userId)) {
-      return Response.json(
+      return jsonWithCors(
         { error: "invalid_request", message: "dispensaryId and a 9-digit userId are required" },
         { status: 400 }
       );
@@ -103,7 +120,7 @@ export async function handleRequest(req: Request): Promise<Response> {
 
     try {
       const ack = await sendCommand(dispensaryId, "dispense", { count: 1 });
-      return Response.json({
+      return jsonWithCors({
         success: ack.success,
         error: ack.error,
         message: ack.success ? "Ball dispensed!" : (ack.error ?? "Dispense failed"),
@@ -120,12 +137,12 @@ export async function handleRequest(req: Request): Promise<Response> {
     try {
       body = (await req.json()) as typeof body;
     } catch {
-      return Response.json({ error: "invalid_body" }, { status: 400 });
+      return jsonWithCors({ error: "invalid_body" }, { status: 400 });
     }
 
     const { dispensaryId, userId } = body;
     if (!dispensaryId || !userId || !/^\d{9}$/.test(userId)) {
-      return Response.json(
+      return jsonWithCors(
         { error: "invalid_request", message: "dispensaryId and a 9-digit userId are required" },
         { status: 400 }
       );
@@ -133,7 +150,7 @@ export async function handleRequest(req: Request): Promise<Response> {
 
     const device = getDevice(dispensaryId);
     if (!device) {
-      return Response.json({ error: "device_not_found", message: "Machine not found" }, { status: 404 });
+      return jsonWithCors({ error: "device_not_found", message: "Machine not found" }, { status: 404 });
     }
 
     const currentCount = device.status?.ball_count ?? 0;
@@ -142,7 +159,7 @@ export async function handleRequest(req: Request): Promise<Response> {
       const ack = await sendCommand(dispensaryId, "set_ball_count", {
         count: currentCount + 1,
       });
-      return Response.json({
+      return jsonWithCors({
         success: ack.success,
         error: ack.error,
         message: ack.success ? "Ball returned!" : (ack.error ?? "Return failed"),
@@ -153,18 +170,18 @@ export async function handleRequest(req: Request): Promise<Response> {
     }
   }
 
-  return Response.json({ error: "not_found" }, { status: 404 });
+  return jsonWithCors({ error: "not_found" }, { status: 404 });
 }
 
 function errorResponse(err: Error): Response {
   switch (err.message) {
     case "device_not_found":
-      return Response.json({ error: "device_not_found" }, { status: 404 });
+      return jsonWithCors({ error: "device_not_found" }, { status: 404 });
     case "device_offline":
-      return Response.json({ error: "device_offline" }, { status: 503 });
+      return jsonWithCors({ error: "device_offline" }, { status: 503 });
     case "command_timeout":
-      return Response.json({ error: "command_timeout" }, { status: 504 });
+      return jsonWithCors({ error: "command_timeout" }, { status: 504 });
     default:
-      return Response.json({ error: err.message }, { status: 500 });
+      return jsonWithCors({ error: err.message }, { status: 500 });
   }
 }
