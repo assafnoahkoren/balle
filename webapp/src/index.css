@@ -461,3 +461,21 @@
     opacity: 1;
   }
 }
+
+/* Phase 4: Filled balls fade to empty state so swap to OTP input is seamless */
+.anim-fadeout {
+  animation: dispense-fadeout 350ms ease-out both;
+}
+
+@keyframes dispense-fadeout {
+  from {
+    border-color: var(--accent-orange);
+    color: var(--accent-orange);
+    background: rgba(255, 122, 47, 0.08);
+  }
+  to {
+    border-color: var(--cell-border);
+    color: transparent;
+    background: var(--cell-bg);
+  }
+}
