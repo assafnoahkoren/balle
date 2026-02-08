@@ -146,8 +146,8 @@ export default function DispensaryPage() {
 
           {/* ID Entry / Animation */}
           <div className="w-full flex flex-col items-center gap-3">
-            <label className="text-base font-semibold text-[var(--text-secondary)] tracking-wide">
-              {isAnimating ? "מחלק..." : "הזן תעודת זהות"}
+            <label dir="rtl" className="text-base font-semibold text-[var(--text-secondary)] tracking-wide">
+              {isAnimating ? "משחרר כדור..." : "הזן תעודת זהות"}
             </label>
 
             {isAnimating ? (

@@ -1,4 +1,4 @@
-import { useCallback, type ReactNode } from "react";
+import { useCallback, useRef, type ReactNode } from "react";
 import { Delete } from "lucide-react";
 
 interface NumericKeyboardProps {
@@ -21,6 +21,9 @@ export function NumericKeyboard({
   disabled = false,
   actionRow,
 }: NumericKeyboardProps) {
+  const holdTimeout = useRef<ReturnType<typeof setTimeout>>();
+  const holdInterval = useRef<ReturnType<typeof setInterval>>();
+
   const handlePress = useCallback(
     (key: string) => {
       if (disabled) return;
@@ -32,6 +35,20 @@ export function NumericKeyboard({
     },
     [disabled, onDigit, onBackspace]
   );
+
+  const startHoldDelete = useCallback(() => {
+    if (disabled) return;
+    holdTimeout.current = setTimeout(() => {
+      holdInterval.current = setInterval(() => {
+        onBackspace();
+      }, 50);
+    }, 500);
+  }, [disabled, onBackspace]);
+
+  const stopHoldDelete = useCallback(() => {
+    clearTimeout(holdTimeout.current);
+    clearInterval(holdInterval.current);
+  }, []);
 
   return (
     <div className="numpad-dock">
@@ -49,6 +66,11 @@ export function NumericKeyboard({
               type="button"
               disabled={disabled}
               onClick={() => handlePress(key)}
+              {...(isBack ? {
+                onPointerDown: startHoldDelete,
+                onPointerUp: stopHoldDelete,
+                onPointerLeave: stopHoldDelete,
+              } : {})}
               className={[
                 "numpad-key",
                 isBack ? "numpad-key-back" : "numpad-key-digit",
