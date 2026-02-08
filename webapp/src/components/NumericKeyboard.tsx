@@ -66,12 +66,16 @@ export function NumericKeyboard({
               key={i}
               type="button"
               disabled={disabled}
-              onClick={() => handlePress(key)}
+              onPointerDown={(e) => {
+                e.preventDefault();
+                handlePress(key);
+                if (isBack) startHoldDelete();
+              }}
               {...(isBack ? {
-                onPointerDown: startHoldDelete,
                 onPointerUp: stopHoldDelete,
                 onPointerLeave: stopHoldDelete,
               } : {})}
+              style={{ touchAction: "manipulation" }}
               className={[
                 "numpad-key",
                 isBack ? "numpad-key-back" : "numpad-key-digit",
