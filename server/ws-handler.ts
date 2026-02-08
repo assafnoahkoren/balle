@@ -36,6 +36,7 @@ export function handleMessage(
         last_seen: Date.now(),
         ws,
         status: msg,
+        ...(msg.label ? { label: msg.label } : {}),
       });
       break;
 

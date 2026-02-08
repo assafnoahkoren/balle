@@ -18,6 +18,7 @@ interface DispenserState {
 
 interface MockDevice {
   id: string;
+  label: string;
   ws: WebSocket | null;
   uptime_s: number;
   ball_count: number;
@@ -26,9 +27,15 @@ interface MockDevice {
   dispenser: DispenserState;
 }
 
+const MOCK_LABELS: Record<number, string> = {
+  1: 'אולם ספורט ביה"ס היובל',
+  2: "מרכז הקהילתי רמת גן",
+};
+
 function createDevice(index: number): MockDevice {
   return {
     id: `esp32-mock-${String(index).padStart(3, "0")}`,
+    label: MOCK_LABELS[index] ?? `מכונה ${index}`,
     ws: null,
     uptime_s: 0,
     ball_count: 20,
@@ -47,6 +54,7 @@ function buildStatus(d: MockDevice) {
   return JSON.stringify({
     type: "status",
     device_id: d.id,
+    label: d.label,
     uptime_s: d.uptime_s,
     free_heap: 180000 + Math.floor(Math.random() * 20000),
     wifi_rssi: -40 - Math.floor(Math.random() * 30),

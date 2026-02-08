@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { useParams } from "react-router";
 import { BallOtpInput } from "@/components/BallOtpInput";
 import { NumericKeyboard } from "@/components/NumericKeyboard";
@@ -19,6 +19,15 @@ export default function DispensaryPage() {
   const { dispensaryId } = useParams<{ dispensaryId: string }>();
   const [userId, setUserId] = useState("");
   const [result, setResult] = useState<ResultState>({ status: "idle" });
+  const [machineLabel, setMachineLabel] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!dispensaryId) return;
+    fetch(`/api/devices/${dispensaryId}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => { if (d?.label) setMachineLabel(d.label); })
+      .catch(() => {});
+  }, [dispensaryId]);
   const [isAnimating, setIsAnimating] = useState(false);
   const [skipEntryAnim, setSkipEntryAnim] = useState(false);
 
@@ -129,7 +138,7 @@ export default function DispensaryPage() {
               </h1>
             </div>
             <p dir="rtl" className="text-xs tracking-[0.2em] uppercase text-[var(--text-muted)] font-medium">
-              {`מכונה ${dispensaryId || "---"}`}
+              {machineLabel ?? `מכונה ${dispensaryId || "---"}`}
             </p>
           </div>
 

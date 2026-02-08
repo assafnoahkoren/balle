@@ -5,6 +5,7 @@ import type { ServerWebSocket } from "bun";
 export interface StatusMessage {
   type: "status";
   device_id: string;
+  label?: string;
   uptime_s: number;
   free_heap: number;
   wifi_rssi: number;
@@ -54,6 +55,7 @@ export interface CommandMessage {
 
 export interface DeviceState {
   device_id: string;
+  label: string | null;
   online: boolean;
   last_seen: number;
   ws: ServerWebSocket<WsData> | null;

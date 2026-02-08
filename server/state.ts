@@ -34,6 +34,7 @@ export function upsertDevice(id: string, partial: Partial<DeviceState>): DeviceS
   }
   const device: DeviceState = {
     device_id: id,
+    label: null,
     online: false,
     last_seen: Date.now(),
     ws: null,
