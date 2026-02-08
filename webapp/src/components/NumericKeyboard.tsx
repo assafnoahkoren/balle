@@ -21,8 +21,9 @@ export function NumericKeyboard({
   disabled = false,
   actionRow,
 }: NumericKeyboardProps) {
-  const holdTimeout = useRef<ReturnType<typeof setTimeout>>();
-  const holdInterval = useRef<ReturnType<typeof setInterval>>();
+  const holdTimeout = useRef<ReturnType<typeof setTimeout>>(null);
+  const holdInterval = useRef<ReturnType<typeof setInterval>>(null);
+
 
   const handlePress = useCallback(
     (key: string) => {
@@ -46,8 +47,8 @@ export function NumericKeyboard({
   }, [disabled, onBackspace]);
 
   const stopHoldDelete = useCallback(() => {
-    clearTimeout(holdTimeout.current);
-    clearInterval(holdInterval.current);
+    if (holdTimeout.current) clearTimeout(holdTimeout.current);
+    if (holdInterval.current) clearInterval(holdInterval.current);
   }, []);
 
   return (
