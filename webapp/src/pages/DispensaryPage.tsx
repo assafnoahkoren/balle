@@ -3,6 +3,7 @@ import { useParams } from "react-router";
 import { BallOtpInput } from "@/components/BallOtpInput";
 import { NumericKeyboard } from "@/components/NumericKeyboard";
 import { DispenseAnimation } from "@/components/DispenseAnimation";
+import { isValidIsraeliId } from "@/lib/israeliId";
 import { CircleDot, Undo2, Loader2 } from "lucide-react";
 
 type Status = "idle" | "loading" | "success" | "error";
@@ -26,6 +27,7 @@ export default function DispensaryPage() {
 
   const trimmedId = userId.replace(/\s/g, "");
   const isIdComplete = trimmedId.length === 9;
+  const isIdValid = isIdComplete && isValidIsraeliId(trimmedId);
   const isLoading = result.status === "loading";
 
   const handleDigit = useCallback(
@@ -50,7 +52,7 @@ export default function DispensaryPage() {
 
   const handleAction = useCallback(
     async (action: Action) => {
-      if (!isIdComplete || !dispensaryId) return;
+      if (!isIdValid || !dispensaryId) return;
 
       setResult({ status: "loading", action });
 
@@ -95,7 +97,7 @@ export default function DispensaryPage() {
         });
       }
     },
-    [isIdComplete, dispensaryId, userId]
+    [isIdValid, dispensaryId, userId]
   );
 
   const handleAnimationComplete = useCallback(() => {
@@ -151,8 +153,12 @@ export default function DispensaryPage() {
               />
             )}
 
-            <p className="text-xs text-[var(--text-muted)]">
-              {isAnimating ? "\u00A0" : "9-digit member number"}
+            <p className={`text-xs ${isIdComplete && !isIdValid ? "text-[var(--error-red)]" : "text-[var(--text-muted)]"}`}>
+              {isAnimating
+                ? "\u00A0"
+                : isIdComplete && !isIdValid
+                  ? "Invalid ID number"
+                  : "9-digit member number"}
             </p>
           </div>
 

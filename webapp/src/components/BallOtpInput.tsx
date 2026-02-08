@@ -42,10 +42,6 @@ export function BallOtpInput({
                 <div className="absolute inset-0 rounded-full animate-pulse border-2 border-[var(--accent-orange)] opacity-40 pointer-events-none" />
               )}
             </div>
-            {/* Decorative shine on filled cells */}
-            {filled && (
-              <div className="absolute top-[3px] left-1/2 -translate-x-1/2 w-3 h-1.5 rounded-full bg-white/15 pointer-events-none" />
-            )}
           </div>
         );
       })}
