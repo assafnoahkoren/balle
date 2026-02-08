@@ -367,3 +367,97 @@
   border: 1px solid rgba(255, 92, 92, 0.2);
   color: var(--error-red);
 }
+
+/* ════════════════════════════════════════════════════
+   DISPENSE ANIMATION
+   ════════════════════════════════════════════════════ */
+
+/* Slot width = cell size + gap */
+:root {
+  --slot-w: 38px; /* 34px cell + 4px gap */
+}
+@media (min-width: 640px) {
+  :root {
+    --slot-w: 54px; /* 44px cell + 10px gap */
+  }
+}
+
+/* Phase 1: Sequential shine / activation pulse */
+.anim-shine {
+  animation: dispense-shine 400ms ease-out both;
+}
+
+@keyframes dispense-shine {
+  0% {
+    box-shadow: 0 0 0 0 transparent;
+    transform: scale(1);
+  }
+  35% {
+    box-shadow:
+      0 0 20px 6px var(--accent-orange),
+      inset 0 0 10px rgba(255, 255, 255, 0.25);
+    transform: scale(1.18);
+    border-color: #ffb347;
+    color: #fff;
+    background: rgba(255, 179, 71, 0.3);
+  }
+  100% {
+    box-shadow: 0 0 6px 2px var(--accent-orange-glow);
+    transform: scale(1);
+    border-color: var(--accent-orange);
+    color: var(--accent-orange);
+    background: rgba(255, 122, 47, 0.08);
+  }
+}
+
+/* Phase 2: Last ball rolls out to the right */
+.anim-rollout {
+  animation: dispense-rollout 500ms cubic-bezier(0.4, 0, 1, 1) both;
+}
+
+@keyframes dispense-rollout {
+  0% {
+    transform: translateX(0) rotate(0deg);
+    opacity: 1;
+  }
+  60% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(calc(var(--slot-w) * 2.5)) rotate(540deg);
+    opacity: 0;
+  }
+}
+
+/* Phase 3: Remaining balls shift right by one slot */
+.anim-shift {
+  animation: dispense-shift 400ms cubic-bezier(0.25, 1, 0.5, 1) both;
+}
+
+@keyframes dispense-shift {
+  from {
+    transform: translateX(calc(-1 * var(--slot-w)));
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+/* Phase 3: New empty ball enters from the left */
+.anim-new-ball {
+  animation: dispense-new-ball 450ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes dispense-new-ball {
+  0% {
+    transform: translateX(calc(-2 * var(--slot-w))) scale(0.3);
+    opacity: 0;
+  }
+  40% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(0) scale(1);
+    opacity: 1;
+  }
+}
