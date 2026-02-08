@@ -8,7 +8,19 @@ export function DeviceCard({ device }: { device: DeviceStatus }) {
   const [ballCountInput, setBallCountInput] = useState("");
   const [angleInput, setAngleInput] = useState("");
   const [settleInput, setSettleInput] = useState("");
+  const [editingLabel, setEditingLabel] = useState(false);
+  const [labelInput, setLabelInput] = useState("");
   const s = device.status;
+
+  async function saveLabel() {
+    const trimmed = labelInput.trim();
+    await fetch(`${API_BASE}/api/devices/${device.device_id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ label: trimmed || null }),
+    });
+    setEditingLabel(false);
+  }
 
   async function sendCommand(action: string, params: Record<string, unknown> = {}) {
     setBusy(action);
@@ -33,7 +45,33 @@ export function DeviceCard({ device }: { device: DeviceStatus }) {
     <div className={`device-card ${stateClass}`}>
       <div className="card-header">
         <span className={`status-dot ${stateClass}`} />
-        <h2>{device.device_id}</h2>
+        <div>
+          <h2>{device.device_id}</h2>
+          {editingLabel ? (
+            <input
+              className="label-input"
+              autoFocus
+              value={labelInput}
+              onChange={(e) => setLabelInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") saveLabel();
+                if (e.key === "Escape") setEditingLabel(false);
+              }}
+              onBlur={saveLabel}
+              placeholder="Set label..."
+            />
+          ) : (
+            <span
+              className="device-label"
+              onClick={() => {
+                setLabelInput(device.label || "");
+                setEditingLabel(true);
+              }}
+            >
+              {device.label || "No label — click to set"}
+            </span>
+          )}
+        </div>
         <span className="status-label">
           {device.online ? "Online" : "Offline"}
         </span>

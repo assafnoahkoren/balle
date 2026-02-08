@@ -1,5 +1,6 @@
 export interface DeviceStatus {
   device_id: string;
+  label: string | null;
   online: boolean;
   last_seen: number;
   status: {

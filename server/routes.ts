@@ -10,7 +10,7 @@ function serializeDevice(d: DeviceState) {
 function corsHeaders(): HeadersInit {
   return {
     "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+    "Access-Control-Allow-Methods": "GET, POST, PUT, OPTIONS",
     "Access-Control-Allow-Headers": "Content-Type",
   };
 }
@@ -46,6 +46,21 @@ export async function handleRequest(req: Request): Promise<Response> {
     if (!device)
       return jsonWithCors({ error: "device_not_found" }, { status: 404 });
     return jsonWithCors(serializeDevice(device));
+  }
+
+  // PUT /api/devices/:id/label
+  if (method === "PUT" && deviceMatch) {
+    const device = getDevice(deviceMatch[1]!);
+    if (!device)
+      return jsonWithCors({ error: "device_not_found" }, { status: 404 });
+    let body: { label?: string } = {};
+    try {
+      body = await req.json();
+    } catch {
+      return jsonWithCors({ error: "invalid_body" }, { status: 400 });
+    }
+    device.label = body.label ?? null;
+    return jsonWithCors({ success: true, label: device.label });
   }
 
   // POST /api/devices/:id/dispense
