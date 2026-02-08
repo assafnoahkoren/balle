@@ -1,0 +1,67 @@
+import { useCallback, type ReactNode } from "react";
+import { Delete } from "lucide-react";
+
+interface NumericKeyboardProps {
+  onDigit: (digit: string) => void;
+  onBackspace: () => void;
+  disabled?: boolean;
+  actionRow?: ReactNode;
+}
+
+const KEYS = [
+  "1", "2", "3",
+  "4", "5", "6",
+  "7", "8", "9",
+  null, "0", "back",
+] as const;
+
+export function NumericKeyboard({
+  onDigit,
+  onBackspace,
+  disabled = false,
+  actionRow,
+}: NumericKeyboardProps) {
+  const handlePress = useCallback(
+    (key: string) => {
+      if (disabled) return;
+      if (key === "back") {
+        onBackspace();
+      } else {
+        onDigit(key);
+      }
+    },
+    [disabled, onDigit, onBackspace]
+  );
+
+  return (
+    <div className="numpad-dock">
+      <div className="numpad-grid">
+        {KEYS.map((key, i) => {
+          if (key === null) {
+            return <div key={i} />;
+          }
+
+          const isBack = key === "back";
+
+          return (
+            <button
+              key={i}
+              type="button"
+              disabled={disabled}
+              onClick={() => handlePress(key)}
+              className={[
+                "numpad-key",
+                isBack ? "numpad-key-back" : "numpad-key-digit",
+              ].join(" ")}
+            >
+              {isBack ? <Delete className="size-6" /> : key}
+            </button>
+          );
+        })}
+      </div>
+      {actionRow && (
+        <div className="numpad-actions">{actionRow}</div>
+      )}
+    </div>
+  );
+}

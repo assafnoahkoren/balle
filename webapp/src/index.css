@@ -368,6 +368,122 @@
   color: var(--error-red);
 }
 
+/* ── Numeric Keyboard (sticky bottom grid) ── */
+:root {
+  --numpad-key-h: 72px;
+  --numpad-action-h: 72px;
+  /* 4 rows of keys + 1px gaps + action row + padding */
+  --numpad-h: calc(var(--numpad-key-h) * 4 + 3px + var(--numpad-action-h) + 12px);
+}
+
+.numpad-dock {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  background: linear-gradient(to bottom, rgba(13, 15, 24, 0.85), rgba(13, 15, 24, 0.98) 30%);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 6px 0 env(safe-area-inset-bottom, 0);
+}
+
+.numpad-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+}
+
+.numpad-key {
+  font-family: var(--font-display), sans-serif;
+  font-size: 24px;
+  font-weight: 600;
+  height: var(--numpad-key-h);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border: none;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  position: relative;
+  transition: background 0.12s, color 0.12s;
+}
+
+.numpad-key-digit {
+  background: transparent;
+  color: var(--text-primary);
+}
+
+.numpad-key-digit:not(:disabled):active {
+  background: rgba(255, 122, 47, 0.15);
+  color: var(--accent-orange);
+}
+
+.numpad-key-back {
+  background: transparent;
+  color: var(--text-muted);
+}
+
+.numpad-key-back:not(:disabled):active {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-secondary);
+}
+
+.numpad-key:disabled {
+  opacity: 0.25;
+  cursor: not-allowed;
+}
+
+/* ── Action buttons row ── */
+.numpad-actions {
+  display: flex;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.numpad-action {
+  flex: 1;
+  height: var(--numpad-action-h);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: var(--font-body), sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  border: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  transition: background 0.12s, opacity 0.12s;
+}
+
+.numpad-action:disabled {
+  opacity: 0.2;
+  cursor: not-allowed;
+}
+
+.numpad-action-dispense {
+  background: linear-gradient(135deg, var(--accent-orange), #e8601a);
+  color: #fff;
+}
+
+.numpad-action-dispense:not(:disabled):active {
+  background: linear-gradient(135deg, #e8601a, #cc5010);
+}
+
+.numpad-action-return {
+  background: rgba(45, 212, 168, 0.1);
+  color: var(--accent-teal);
+  border-left: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.numpad-action-return:not(:disabled):active {
+  background: rgba(45, 212, 168, 0.2);
+}
+
 /* ════════════════════════════════════════════════════
    DISPENSE ANIMATION
    ════════════════════════════════════════════════════ */

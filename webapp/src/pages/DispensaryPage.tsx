@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef } from "react";
 import { useParams } from "react-router";
 import { BallOtpInput } from "@/components/BallOtpInput";
+import { NumericKeyboard } from "@/components/NumericKeyboard";
 import { DispenseAnimation } from "@/components/DispenseAnimation";
 import { CircleDot, Undo2, Loader2 } from "lucide-react";
 
@@ -23,8 +24,29 @@ export default function DispensaryPage() {
   // Store the pending result to show after animation completes
   const pendingResultRef = useRef<ResultState | null>(null);
 
-  const isIdComplete = userId.replace(/\s/g, "").length === 9;
+  const trimmedId = userId.replace(/\s/g, "");
+  const isIdComplete = trimmedId.length === 9;
   const isLoading = result.status === "loading";
+
+  const handleDigit = useCallback(
+    (digit: string) => {
+      setUserId((prev) => {
+        const trimmed = prev.replace(/\s/g, "");
+        if (trimmed.length >= 9) return prev;
+        setSkipEntryAnim(false);
+        return trimmed + digit;
+      });
+    },
+    []
+  );
+
+  const handleBackspace = useCallback(() => {
+    setUserId((prev) => {
+      const trimmed = prev.replace(/\s/g, "");
+      if (trimmed.length === 0) return prev;
+      return trimmed.slice(0, -1);
+    });
+  }, []);
 
   const handleAction = useCallback(
     async (action: Action) => {
@@ -91,83 +113,92 @@ export default function DispensaryPage() {
   }, []);
 
   return (
-    <div className="dispensary-page min-h-dvh flex flex-col items-center justify-center px-4 py-8 relative overflow-hidden">
+    <div className="dispensary-page min-h-dvh flex flex-col relative overflow-hidden">
       {/* Decorative floating balls — hidden on small screens */}
       <div className="floating-ball floating-ball-1 hidden sm:block" />
       <div className="floating-ball floating-ball-2 hidden sm:block" />
       <div className="floating-ball floating-ball-3 hidden sm:block" />
 
-      {/* Main card */}
-      <div className="relative z-10 w-full max-w-sm flex flex-col items-center gap-8">
-        {/* Header */}
-        <div className="flex flex-col items-center gap-2">
-          <div className="balle-logo flex items-center gap-2">
-            <CircleDot className="size-8 text-[var(--accent-orange)]" strokeWidth={2.5} />
-            <h1 className="font-display text-4xl font-extrabold tracking-tight text-[var(--text-primary)]">
-              balle
-            </h1>
+      {/* Main content — centered above the keyboard */}
+      <div className="flex-1 flex flex-col items-center justify-center px-4 py-6 pb-[calc(var(--numpad-h)+1rem)]">
+        <div className="relative z-10 w-full max-w-sm flex flex-col items-center gap-6">
+          {/* Header */}
+          <div className="flex flex-col items-center gap-2">
+            <div className="balle-logo flex items-center gap-2">
+              <CircleDot className="size-8 text-[var(--accent-orange)]" strokeWidth={2.5} />
+              <h1 className="font-display text-4xl font-extrabold tracking-tight text-[var(--text-primary)]">
+                balle
+              </h1>
+            </div>
+            <p className="text-xs tracking-[0.2em] uppercase text-[var(--text-muted)] font-medium">
+              Machine {dispensaryId || "---"}
+            </p>
           </div>
-          <p className="text-xs tracking-[0.2em] uppercase text-[var(--text-muted)] font-medium">
-            Machine {dispensaryId || "---"}
-          </p>
-        </div>
 
-        {/* ID Entry / Animation */}
-        <div className="w-full flex flex-col items-center gap-3">
-          <label className="text-sm font-semibold text-[var(--text-secondary)] tracking-wide">
-            {isAnimating ? "Dispensing..." : "Enter your ID"}
-          </label>
+          {/* ID Entry / Animation */}
+          <div className="w-full flex flex-col items-center gap-3">
+            <label className="text-sm font-semibold text-[var(--text-secondary)] tracking-wide">
+              {isAnimating ? "Dispensing..." : "Enter your ID"}
+            </label>
 
-          {isAnimating ? (
-            <DispenseAnimation
-              digits={userId}
-              onComplete={handleAnimationComplete}
-            />
-          ) : (
-            <BallOtpInput
-              value={userId}
-              onChange={(v) => { setSkipEntryAnim(false); setUserId(v); }}
-              length={9}
-              disabled={isLoading}
-              skipEntryAnimation={skipEntryAnim}
-            />
-          )}
-
-          <p className="text-xs text-[var(--text-muted)]">
-            {isAnimating ? "\u00A0" : "9-digit member number"}
-          </p>
-        </div>
-
-        {/* Action Buttons */}
-        <div className="w-full flex flex-col gap-3">
-          <button
-            onClick={() => handleAction("dispense")}
-            disabled={!isIdComplete || isLoading || isAnimating}
-            className="action-btn action-btn-dispense group"
-          >
-            {isLoading && result.action === "dispense" ? (
-              <Loader2 className="size-5 animate-spin" />
+            {isAnimating ? (
+              <DispenseAnimation
+                digits={userId}
+                onComplete={handleAnimationComplete}
+              />
             ) : (
-              <CircleDot className="size-5 transition-transform group-hover:scale-110" />
+              <BallOtpInput
+                value={userId}
+                length={9}
+                disabled={isLoading}
+                skipEntryAnimation={skipEntryAnim}
+              />
             )}
-            <span>Dispense Ball</span>
-          </button>
 
-          <button
-            onClick={() => handleAction("return")}
-            disabled={!isIdComplete || isLoading || isAnimating}
-            className="action-btn action-btn-return group"
-          >
-            {isLoading && result.action === "return" ? (
-              <Loader2 className="size-5 animate-spin" />
-            ) : (
-              <Undo2 className="size-5 transition-transform group-hover:scale-110" />
-            )}
-            <span>Return Ball</span>
-          </button>
+            <p className="text-xs text-[var(--text-muted)]">
+              {isAnimating ? "\u00A0" : "9-digit member number"}
+            </p>
+          </div>
+
         </div>
-
       </div>
+
+      {/* Sticky bottom keyboard with action buttons */}
+      {!isAnimating && (
+        <NumericKeyboard
+          onDigit={handleDigit}
+          onBackspace={handleBackspace}
+          disabled={isLoading}
+          actionRow={
+            <>
+              <button
+                onClick={() => handleAction("dispense")}
+                disabled={!isIdComplete || isLoading}
+                className="numpad-action numpad-action-dispense"
+              >
+                {isLoading && result.action === "dispense" ? (
+                  <Loader2 className="size-6 animate-spin" />
+                ) : (
+                  <CircleDot className="size-6" />
+                )}
+                <span>Dispense</span>
+              </button>
+              <button
+                onClick={() => handleAction("return")}
+                disabled={!isIdComplete || isLoading}
+                className="numpad-action numpad-action-return"
+              >
+                {isLoading && result.action === "return" ? (
+                  <Loader2 className="size-6 animate-spin" />
+                ) : (
+                  <Undo2 className="size-6" />
+                )}
+                <span>Return</span>
+              </button>
+            </>
+          }
+        />
+      )}
     </div>
   );
 }
