@@ -5,6 +5,7 @@
   "private": true,
   "scripts": {
     "dev": "bun --watch run index.ts",
+    "mock": "bun run mock-devices.ts",
     "start": "bun run index.ts"
   },
   "devDependencies": {
