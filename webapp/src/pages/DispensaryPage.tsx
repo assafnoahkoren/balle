@@ -173,7 +173,7 @@ export default function DispensaryPage() {
             <>
               <button
                 onClick={() => handleAction("dispense")}
-                disabled={!isIdComplete || isLoading}
+                disabled={isLoading}
                 className="numpad-action numpad-action-dispense"
               >
                 {isLoading && result.action === "dispense" ? (
@@ -185,7 +185,7 @@ export default function DispensaryPage() {
               </button>
               <button
                 onClick={() => handleAction("return")}
-                disabled={!isIdComplete || isLoading}
+                disabled={isLoading}
                 className="numpad-action numpad-action-return"
               >
                 {isLoading && result.action === "return" ? (
