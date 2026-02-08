@@ -3,7 +3,7 @@ import { handleOpen, handleMessage, handleClose } from "./ws-handler";
 import { handleRequest } from "./routes";
 
 const server = Bun.serve<WsData>({
-  port: 4444,
+  port: parseInt(process.env.PORT || "4444"),
   fetch(req, server) {
     if (server.upgrade(req, { data: { device_id: null } })) return;
     return handleRequest(req);
