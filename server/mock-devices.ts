@@ -6,7 +6,10 @@
  *   bun run mock-devices.ts 5            # 5 devices
  */
 
-const SERVER_URL = "ws://localhost:4444";
+const PROD_URL = "wss://balle-server.onrender.com";
+const SERVER_URL = process.argv.includes("--prod")
+  ? PROD_URL
+  : (process.env.SERVER_URL || "ws://localhost:4444");
 const STATUS_INTERVAL_MS = 2000;
 
 interface DispenserState {
@@ -175,14 +178,15 @@ function connect(d: MockDevice) {
 
 // --- main ---
 
-const count = parseInt(process.argv[2] || "2", 10);
+const args = process.argv.slice(2).filter(a => !a.startsWith("--"));
+const count = parseInt(args[0] || "2", 10);
 const devices: MockDevice[] = [];
 
 for (let i = 1; i <= count; i++) {
   devices.push(createDevice(i));
 }
 
-console.log(`Starting ${count} mock dispenser(s)...`);
+console.log(`Starting ${count} mock dispenser(s) → ${SERVER_URL}`);
 
 for (const d of devices) {
   connect(d);

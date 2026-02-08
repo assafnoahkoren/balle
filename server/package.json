@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "bun --watch run index.ts",
     "mock": "bun run mock-devices.ts",
+    "mock-prod": "bun run mock-devices.ts --prod",
     "start": "bun run index.ts"
   },
   "devDependencies": {
