@@ -80,14 +80,10 @@ export default function DispensaryPage() {
               : "Ball returned!"),
         };
 
-        // For dispense success, play the animation first
-        if (action === "dispense") {
-          pendingResultRef.current = successResult;
-          setResult({ status: "idle" }); // hide loading state during animation
-          setIsAnimating(true);
-        } else {
-          setResult(successResult);
-        }
+        // Play animation, then show result after it completes
+        pendingResultRef.current = successResult;
+        setResult({ status: "idle" });
+        setIsAnimating(true);
       } catch (err) {
         setResult({
           status: "error",
