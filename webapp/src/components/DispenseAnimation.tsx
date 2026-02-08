@@ -56,8 +56,6 @@ export function DispenseAnimation({ digits, onComplete }: DispenseAnimationProps
             }}
           >
             {digit}
-            {/* Shine highlight */}
-            <div className="absolute top-[3px] left-1/2 -translate-x-1/2 w-3 h-1.5 rounded-full bg-white/15 pointer-events-none" />
           </div>
         ))}
       </div>
