@@ -17,7 +17,7 @@ function corsHeaders(): HeadersInit {
 
 function jsonWithCors(data: unknown, init?: ResponseInit): Response {
   const headers = { ...corsHeaders(), ...init?.headers };
-  return jsonWithCors(data, { ...init, headers });
+  return Response.json(data, { ...init, headers });
 }
 
 export async function handleRequest(req: Request): Promise<Response> {
