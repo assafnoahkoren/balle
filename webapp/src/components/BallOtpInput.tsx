@@ -6,6 +6,7 @@ interface BallOtpInputProps {
   onChange: (value: string) => void;
   length?: number;
   disabled?: boolean;
+  skipEntryAnimation?: boolean;
 }
 
 export function BallOtpInput({
@@ -13,6 +14,7 @@ export function BallOtpInput({
   onChange,
   length = 9,
   disabled = false,
+  skipEntryAnimation = false,
 }: BallOtpInputProps) {
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
@@ -112,7 +114,7 @@ export function BallOtpInput({
               onPaste={handlePaste}
               onFocus={(e) => e.target.select()}
               className={cn(
-                "ball-cell",
+                !skipEntryAnimation && "ball-cell",
                 "size-[34px] sm:size-11 rounded-full text-center text-sm sm:text-lg font-bold",
                 "bg-[var(--cell-bg)] border-2 border-[var(--cell-border)]",
                 "outline-none transition-all duration-200",

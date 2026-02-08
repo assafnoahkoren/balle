@@ -18,6 +18,7 @@ export default function DispensaryPage() {
   const [userId, setUserId] = useState("");
   const [result, setResult] = useState<ResultState>({ status: "idle" });
   const [isAnimating, setIsAnimating] = useState(false);
+  const [skipEntryAnim, setSkipEntryAnim] = useState(false);
 
   // Store the pending result to show after animation completes
   const pendingResultRef = useRef<ResultState | null>(null);
@@ -80,6 +81,7 @@ export default function DispensaryPage() {
   );
 
   const handleAnimationComplete = useCallback(() => {
+    setSkipEntryAnim(true);
     setIsAnimating(false);
     setUserId("");
     if (pendingResultRef.current) {
@@ -124,9 +126,10 @@ export default function DispensaryPage() {
           ) : (
             <BallOtpInput
               value={userId}
-              onChange={setUserId}
+              onChange={(v) => { setSkipEntryAnim(false); setUserId(v); }}
               length={9}
               disabled={isLoading}
+              skipEntryAnimation={skipEntryAnim}
             />
           )}
 
