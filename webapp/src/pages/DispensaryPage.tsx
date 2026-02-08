@@ -129,14 +129,14 @@ export default function DispensaryPage() {
               </h1>
             </div>
             <p className="text-xs tracking-[0.2em] uppercase text-[var(--text-muted)] font-medium">
-              Machine {dispensaryId || "---"}
+              {`מכונה ${dispensaryId || "---"}`}
             </p>
           </div>
 
           {/* ID Entry / Animation */}
           <div className="w-full flex flex-col items-center gap-3">
             <label className="text-sm font-semibold text-[var(--text-secondary)] tracking-wide">
-              {isAnimating ? "Dispensing..." : "Enter your ID"}
+              {isAnimating ? "מחלק..." : "הזן תעודת זהות"}
             </label>
 
             {isAnimating ? (
@@ -157,8 +157,8 @@ export default function DispensaryPage() {
               {isAnimating
                 ? "\u00A0"
                 : isIdComplete && !isIdValid
-                  ? "Invalid ID number"
-                  : "9-digit member number"}
+                  ? "מספר תעודת זהות לא תקין"
+                  : "מספר תעודת זהות בן 9 ספרות"}
             </p>
           </div>
 
@@ -183,7 +183,7 @@ export default function DispensaryPage() {
                 ) : (
                   <CircleDot className="size-6" />
                 )}
-                <span>Dispense</span>
+                <span>שחרור</span>
               </button>
               <button
                 onClick={() => handleAction("return")}
@@ -195,7 +195,7 @@ export default function DispensaryPage() {
                 ) : (
                   <Undo2 className="size-6" />
                 )}
-                <span>Return</span>
+                <span>החזרה</span>
               </button>
             </>
           }
