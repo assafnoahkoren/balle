@@ -128,7 +128,7 @@ export default function DispensaryPage() {
                 balle
               </h1>
             </div>
-            <p className="text-xs tracking-[0.2em] uppercase text-[var(--text-muted)] font-medium">
+            <p dir="rtl" className="text-xs tracking-[0.2em] uppercase text-[var(--text-muted)] font-medium">
               {`מכונה ${dispensaryId || "---"}`}
             </p>
           </div>
@@ -173,29 +173,39 @@ export default function DispensaryPage() {
           disabled={isLoading}
           actionRow={
             <>
-              <button
-                onClick={() => handleAction("dispense")}
-                disabled={isLoading}
-                className="numpad-action numpad-action-dispense"
-              >
-                {isLoading && result.action === "dispense" ? (
-                  <Loader2 className="size-6 animate-spin" />
-                ) : (
-                  <CircleDot className="size-6" />
-                )}
-                <span>שחרור</span>
-              </button>
-              <button
+              <button dir="rtl"
                 onClick={() => handleAction("return")}
                 disabled={isLoading}
                 className="numpad-action numpad-action-return"
               >
-                {isLoading && result.action === "return" ? (
-                  <Loader2 className="size-6 animate-spin" />
-                ) : (
-                  <Undo2 className="size-6" />
-                )}
-                <span>החזרה</span>
+                <div className="text-lg flex flex-col items-center gap-0.5">
+                  <div className="flex items-center gap-2">
+                    {isLoading && result.action === "return" ? (
+                      <Loader2 className="size-5 animate-spin" />
+                    ) : (
+                      <Undo2 className="size-5" />
+                    )}
+                    <span>החזרה</span>
+                  </div>
+                  <span className="text-[14px] font-normal opacity-60">החזרת כדור למכונה</span>
+                </div>
+              </button>
+              <button dir="rtl"
+                onClick={() => handleAction("dispense")}
+                disabled={isLoading}
+                className="numpad-action numpad-action-dispense"
+              >
+                <div className="text-lg flex flex-col items-center gap-0.5">
+                  <div className="flex items-center gap-2">
+                    {isLoading && result.action === "dispense" ? (
+                      <Loader2 className="size-5 animate-spin" />
+                    ) : (
+                      <CircleDot className="size-5" />
+                    )}
+                    <span>שחרור</span>
+                  </div>
+                  <span className="text-[14px] font-normal opacity-60">קבלת כדור מהמכונה</span>
+                </div>
               </button>
             </>
           }
